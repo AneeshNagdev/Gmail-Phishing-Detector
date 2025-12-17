@@ -1,0 +1,13 @@
+{
+    "name": "phishing-detector-server",
+    "version": "1.0.0",
+    "description": "Backend for Phishing Detection Extension",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "sqlite3": "^5.1.6"
+    }
+}
