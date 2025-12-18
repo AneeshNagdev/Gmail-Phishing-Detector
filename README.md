@@ -14,6 +14,9 @@ This project is a Chrome extension designed to analyze Gmail emails for potentia
     - `content.js`: Loaded on Gmail, currently logs a confirmation message.
     - `background.js`: Service worker registered.
 - **Backend:** Initial server structure set up with `index.js` and `database.js` (SQLite).
+- **SPA Robustness (Module 2):**
+    - **Initialization Guard:** Ensures content script runs exactly once per page load.
+    - **Navigation Detection:** Monitors Gmail's internal URL changes (Inbox -> Email -> Sent) without page reloads.
 
 ### Next Steps
 - Implement email content extraction logic.
