@@ -18,7 +18,25 @@
 
         if (appRoot) {
             console.log("Gmail UI ready");
-            // Navigation detection logic will be initialized here in the next step
+
+            // 3. Navigation Detection
+            let lastUrl = location.href;
+
+            // Observer to watch for URL changes
+            // Gmail is an SPA, so the URL changes via History API, which doesn't always trigger standard events.
+            // A MutationObserver on the body is a reliable way to catch changes as the DOM updates significantly on nav.
+            const observer = new MutationObserver(() => {
+                const currentUrl = location.href;
+                if (currentUrl !== lastUrl) {
+                    lastUrl = currentUrl;
+                    console.log("Gmail URL changed:", currentUrl);
+                }
+            });
+
+            observer.observe(document.body, {
+                subtree: true,
+                childList: true
+            });
         } else {
             // Check again in 500ms
             setTimeout(waitForGmailToLoad, 500);
