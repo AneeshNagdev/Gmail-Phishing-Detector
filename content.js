@@ -21,6 +21,28 @@
 
             // 3. Navigation Detection
             let lastUrl = location.href;
+            let isEmailOpen = false;
+
+            const checkEmailOpenStatus = () => {
+                // Simple heuristic: 
+                // 1. URL check: commonly /mail/u/0/#inbox/FMfcgz... (long ID) vs /#inbox
+                // 2. DOM check: existence of '.hP' (subject header) or '.a3s' (email body)
+
+                // We'll rely primarily on the DOM because URLs update before content loads.
+                // '.hP' is the subject line in the conversation view.
+                const isEmailView = !!document.querySelector('.hP');
+
+                if (isEmailView && !isEmailOpen) {
+                    isEmailOpen = true;
+                    console.log("Email opened");
+                } else if (!isEmailView && isEmailOpen) {
+                    // Double check: sometimes DOM updates are partial. 
+                    // Verify we are definitely NOT in an email view (e.g., back in inbox)
+                    // or just trust the absence of the specific email marker '.hP'
+                    isEmailOpen = false;
+                    console.log("Email closed");
+                }
+            };
 
             // Observer to watch for URL changes
             // Gmail is an SPA, so the URL changes via History API, which doesn't always trigger standard events.
@@ -31,6 +53,8 @@
                     lastUrl = currentUrl;
                     console.log("Gmail URL changed:", currentUrl);
                 }
+                // Also check view status on every mutation (throttling might be needed if perf issues arise, but for now it's fine)
+                checkEmailOpenStatus();
             });
 
             observer.observe(document.body, {
