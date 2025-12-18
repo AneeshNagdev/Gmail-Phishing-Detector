@@ -17,6 +17,8 @@ This project is a Chrome extension designed to analyze Gmail emails for potentia
 - **SPA Robustness (Module 2):**
     - **Initialization Guard:** Ensures content script runs exactly once per page load.
     - **Navigation Detection:** Monitors Gmail's internal URL changes (Inbox -> Email -> Sent) without page reloads.
+- **Email State Awareness (Module 3):**
+    - **Open/Close Detection:** Reliably detects when a user opens an email conversation vs. viewing a list (Inbox), logging "Email opened" or "Email closed".
 
 ### Next Steps
 - Implement email content extraction logic.
