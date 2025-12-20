@@ -67,8 +67,37 @@
                     } else {
                         console.log("Sender domain extraction failed: Sender element (.gD) not found");
                     }
+                    extractReplyToDomain();
                 } catch (error) {
                     console.error("Error extracting sender domain:", error);
+                }
+            };
+
+            const extractReplyToDomain = () => {
+                try {
+                    const openEmailContainer = document.querySelector('.MainContent') || document.body;
+                    const headerRows = Array.from(openEmailContainer.querySelectorAll('tr, div'));
+
+                    let replyToFound = false;
+
+                    for (const row of headerRows) {
+                        if (row.innerText && row.innerText.includes('Reply-to:')) {
+                            const emailMatch = row.innerText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/);
+                            if (emailMatch) {
+                                const email = emailMatch[0];
+                                const domain = email.split('@')[1];
+                                console.log(`Reply-to domain detected: ${domain}`);
+                                replyToFound = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!replyToFound) {
+                        console.log("No reply-to domain found (or field not visible)");
+                    }
+                } catch (error) {
+                    console.log("No reply-to domain found (error during search)");
                 }
             };
 
