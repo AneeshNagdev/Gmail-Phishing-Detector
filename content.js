@@ -35,12 +35,40 @@
                 if (isEmailView && !isEmailOpen) {
                     isEmailOpen = true;
                     console.log("Email opened");
+                    extractSenderDomain(); // Trigger extraction once on open
                 } else if (!isEmailView && isEmailOpen) {
                     // Double check: sometimes DOM updates are partial. 
                     // Verify we are definitely NOT in an email view (e.g., back in inbox)
                     // or just trust the absence of the specific email marker '.hP'
                     isEmailOpen = false;
                     console.log("Email closed");
+                }
+            };
+
+            // --- Module 4: Metadata Extraction ---
+            const extractSenderDomain = () => {
+                try {
+                    // Gmail sender name/email is usually in a span with class 'gD'
+                    // It often has an 'email' attribute: <span class="gD" email="sender@example.com">...</span>
+                    const senderElement = document.querySelector('span.gD');
+
+                    if (senderElement) {
+                        const emailAddress = senderElement.getAttribute('email');
+                        if (emailAddress) {
+                            const domain = emailAddress.split('@')[1];
+                            if (domain) {
+                                console.log(`Sender domain detected: ${domain}`);
+                            } else {
+                                console.log("Sender domain extraction failed: Invalid email format");
+                            }
+                        } else {
+                            console.log("Sender domain extraction failed: No email attribute found on sender element");
+                        }
+                    } else {
+                        console.log("Sender domain extraction failed: Sender element (.gD) not found");
+                    }
+                } catch (error) {
+                    console.error("Error extracting sender domain:", error);
                 }
             };
 
