@@ -19,9 +19,13 @@ This project is a Chrome extension designed to analyze Gmail emails for potentia
     - **Navigation Detection:** Monitors Gmail's internal URL changes (Inbox -> Email -> Sent) without page reloads.
 - **Email State Awareness (Module 3):**
     - **Open/Close Detection:** Reliably detects when a user opens an email conversation vs. viewing a list (Inbox), logging "Email opened" or "Email closed".
+- **Metadata Extraction (Module 4):**
+    - **Sender Domain:** Extracts domain from sender's email address.
+    - **Reply-To Domain:** Detects and extracts visible "Reply-to" domains.
+    - **Link Discovery:** Extracts visible links from the email body for later analysis.
 
 ### Next Steps
-- Implement email content extraction logic.
+- Implement backend data analysis pipeline.
 - Connect the extension to the backend server.
 - Develop the phishing analysis logic.
 - Enhance the UI/UX.
