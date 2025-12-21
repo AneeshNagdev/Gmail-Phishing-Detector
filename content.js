@@ -96,8 +96,38 @@
                     if (!replyToFound) {
                         console.log("No reply-to domain found (or field not visible)");
                     }
+                    extractLinks();
                 } catch (error) {
                     console.log("No reply-to domain found (error during search)");
+                }
+            };
+
+            const extractLinks = () => {
+                try {
+                    // Gmail email body is typically in a div with class 'a3s'
+                    // There might be multiple 'a3s' elements (e.g. in conversation threads), 
+                    // usually the last one or all should be checked.
+                    // For "open email", we can scan all recognizable body containers.
+                    const emailBodies = document.querySelectorAll('.a3s');
+
+                    if (emailBodies.length > 0) {
+                        emailBodies.forEach((body) => {
+                            // Find all anchor tags
+                            const links = body.querySelectorAll('a');
+                            links.forEach(link => {
+                                const href = link.getAttribute('href');
+                                if (href && !href.startsWith('mailto:')) { // Filter out mailto links if desired, or keep them. 
+                                    // Requirement: "extract visible links (href only)"
+                                    // "visible" usually means in the body, which .a3s covers.
+                                    console.log(`Links found in email: ${href}`);
+                                }
+                            });
+                        });
+                    } else {
+                        console.log("No email body container (.a3s) found");
+                    }
+                } catch (error) {
+                    console.error("Error extracting links:", error);
                 }
             };
 
