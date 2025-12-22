@@ -36,6 +36,14 @@
                     isEmailOpen = true;
                     console.log("Email opened");
                     extractSenderDomain(); // Trigger extraction once on open
+                    const senderDomain = extractSenderDomain();
+                    const replyToDomain = extractReplyToDomain();
+                    const links = extractLinks();
+                    analyzeRisk({
+                        senderDomain,
+                        replyToDomain,
+                        links
+                    });
                 } else if (!isEmailView && isEmailOpen) {
                     // Double check: sometimes DOM updates are partial. 
                     // Verify we are definitely NOT in an email view (e.g., back in inbox)
@@ -48,28 +56,22 @@
             // --- Module 4: Metadata Extraction ---
             const extractSenderDomain = () => {
                 try {
-                    // Gmail sender name/email is usually in a span with class 'gD'
-                    // It often has an 'email' attribute: <span class="gD" email="sender@example.com">...</span>
                     const senderElement = document.querySelector('span.gD');
-
                     if (senderElement) {
                         const emailAddress = senderElement.getAttribute('email');
                         if (emailAddress) {
                             const domain = emailAddress.split('@')[1];
                             if (domain) {
                                 console.log(`Sender domain detected: ${domain}`);
-                            } else {
-                                console.log("Sender domain extraction failed: Invalid email format");
+                                return domain;
                             }
-                        } else {
-                            console.log("Sender domain extraction failed: No email attribute found on sender element");
                         }
-                    } else {
-                        console.log("Sender domain extraction failed: Sender element (.gD) not found");
                     }
-                    extractReplyToDomain();
+                    console.log("Sender domain extraction failed");
+                    return null;
                 } catch (error) {
                     console.error("Error extracting sender domain:", error);
+                    return null;
                 }
             };
 
@@ -78,8 +80,6 @@
                     const openEmailContainer = document.querySelector('.MainContent') || document.body;
                     const headerRows = Array.from(openEmailContainer.querySelectorAll('tr, div'));
 
-                    let replyToFound = false;
-
                     for (const row of headerRows) {
                         if (row.innerText && row.innerText.includes('Reply-to:')) {
                             const emailMatch = row.innerText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/);
@@ -87,48 +87,81 @@
                                 const email = emailMatch[0];
                                 const domain = email.split('@')[1];
                                 console.log(`Reply-to domain detected: ${domain}`);
-                                replyToFound = true;
-                                break;
+                                return domain;
                             }
                         }
                     }
-
-                    if (!replyToFound) {
-                        console.log("No reply-to domain found (or field not visible)");
-                    }
-                    extractLinks();
+                    console.log("No reply-to domain found");
+                    return null;
                 } catch (error) {
-                    console.log("No reply-to domain found (error during search)");
+                    console.log("Error extracting reply-to domain");
+                    return null;
                 }
             };
 
             const extractLinks = () => {
+                const extractedLinks = [];
                 try {
-                    // Gmail email body is typically in a div with class 'a3s'
-                    // There might be multiple 'a3s' elements (e.g. in conversation threads), 
-                    // usually the last one or all should be checked.
-                    // For "open email", we can scan all recognizable body containers.
                     const emailBodies = document.querySelectorAll('.a3s');
-
                     if (emailBodies.length > 0) {
                         emailBodies.forEach((body) => {
-                            // Find all anchor tags
                             const links = body.querySelectorAll('a');
                             links.forEach(link => {
                                 const href = link.getAttribute('href');
-                                if (href && !href.startsWith('mailto:')) { // Filter out mailto links if desired, or keep them. 
-                                    // Requirement: "extract visible links (href only)"
-                                    // "visible" usually means in the body, which .a3s covers.
-                                    console.log(`Links found in email: ${href}`);
+                                if (href && !href.startsWith('mailto:')) {
+                                    extractedLinks.push(href);
+                                    console.log(`Link found: ${href}`);
                                 }
                             });
                         });
-                    } else {
-                        console.log("No email body container (.a3s) found");
                     }
                 } catch (error) {
                     console.error("Error extracting links:", error);
                 }
+                return extractedLinks;
+            };
+
+            const analyzeRisk = (metadata) => {
+                console.log("--- Starting Risk Analysis ---");
+                const { senderDomain, replyToDomain, links } = metadata;
+                let riskScore = 0;
+                let flags = [];
+
+                // Check A: Sender vs Reply-to mismatch
+                // "if both exist and domains differ add +25 flag"
+                if (senderDomain && replyToDomain) {
+                    if (senderDomain.toLowerCase() !== replyToDomain.toLowerCase()) {
+                        riskScore += 25;
+                        flags.push({
+                            description: "Sender domain mismatch with Reply-To",
+                            evidence: `sender=${senderDomain} replyTo=${replyToDomain}`,
+                            points: 25
+                        });
+                    }
+                }
+
+                // Placeholder for future checks (Link analysis, Sensitive domains, etc.)
+
+                // Calculate Risk Level
+                let riskLevel = "LOW";
+                if (riskScore >= 60) {
+                    riskLevel = "HIGH";
+                } else if (riskScore >= 25) {
+                    riskLevel = "MEDIUM";
+                }
+
+                console.log(`Risk Level: ${riskLevel} (${riskScore}/100)`);
+                if (flags.length > 0) {
+                    console.log("Flags:");
+                    flags.forEach(flag => {
+                        console.log(`- ${flag.description}: ${flag.evidence}`);
+                    });
+                } else {
+                    console.log("Flags: None");
+                }
+
+                console.log("Disclaimer: This is a heuristic check, not 100% accurate. If you trust the sender, verify using official channels.");
+                console.log("--- Risk Analysis Complete ---");
             };
 
             // Observer to watch for URL changes
