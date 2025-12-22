@@ -140,7 +140,38 @@
                     }
                 }
 
-                // Placeholder for future checks (Link analysis, Sensitive domains, etc.)
+                // Check B: Sensitive Domain Mismatch (e.g. PayPal)
+                // "links that don't match sender domain if domain is paypal.com but links are mostly outside add +10"
+                const sensitiveDomains = ['paypal.com'];
+                if (senderDomain && sensitiveDomains.includes(senderDomain.toLowerCase())) {
+                    let suspiciousLinkFound = false;
+                    for (const link of links) {
+                        try {
+                            const url = new URL(link);
+                            // If link domain is different from sender domain 
+                            // (and not subdomain specific, though usually paypal links are paypal.com)
+                            // Strict check for now: must end with senderDomain
+                            if (!url.hostname.endsWith(senderDomain)) {
+                                suspiciousLinkFound = true;
+                                break;
+                            }
+                        } catch (e) {
+                            // Invalid URL, potential risk
+                        }
+                    }
+
+                    if (suspiciousLinkFound) {
+                        riskScore += 10;
+                        flags.push({
+                            description: `Suspicious links for sensitive sender (${senderDomain})`,
+                            evidence: "Email contains links not matching the sender domain",
+                            points: 10
+                        });
+                    }
+                }
+
+                // Check C: Suspicious Link Patterns (Task 2)
+                // TODO: Implement suspicious patterns, shorteners, IP links, etc.
 
                 // Calculate Risk Level
                 let riskLevel = "LOW";
