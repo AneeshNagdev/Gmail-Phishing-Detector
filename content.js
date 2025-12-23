@@ -170,29 +170,58 @@
                     }
                 }
 
-                // Check C: Suspicious Link Patterns (Task 2)
-                // TODO: Implement suspicious patterns, shorteners, IP links, etc.
+                // Check C: Link Analysis
+                let suspiciousPatternFound = false;
+                let urlShortenerFound = false;
+                let ipLinkFound = false;
+                let nonHttpsFound = false;
 
-                // Calculate Risk Level
-                let riskLevel = "LOW";
-                if (riskScore >= 60) {
-                    riskLevel = "HIGH";
-                } else if (riskScore >= 25) {
-                    riskLevel = "MEDIUM";
-                }
+                // Keywords often used in phishing
+                const suspiciousKeywords = ['verify', 'login', 'secure', 'update', 'account', 'support', 'unlock'];
+                const urlShorteners = ['bit.ly', 'goo.gl', 'tinyurl.com', 'ow.ly', 't.co', 'is.gd', 'buff.ly'];
 
-                console.log(`Risk Level: ${riskLevel} (${riskScore}/100)`);
-                if (flags.length > 0) {
-                    console.log("Flags:");
-                    flags.forEach(flag => {
-                        console.log(`- ${flag.description}: ${flag.evidence}`);
-                    });
-                } else {
-                    console.log("Flags: None");
-                }
+                links.forEach(link => {
+                    try {
+                        const url = new URL(link);
+                        const hostname = url.hostname.toLowerCase();
 
-                console.log("Disclaimer: This is a heuristic check, not 100% accurate. If you trust the sender, verify using official channels.");
-                console.log("--- Risk Analysis Complete ---");
+                        // C1: Suspicious Patterns (Keywords)
+                        // "if a link domain contains sender branch name but not excat domain or common scam patterns like: verify, login..."
+                        // We check if the hostname contains any of the suspicious keywords
+                        if (!suspiciousPatternFound) {
+                            for (const keyword of suspiciousKeywords) {
+                                if (hostname.includes(keyword)) {
+                                    suspiciousPatternFound = true;
+                                    flags.push({
+                                        description: "Suspicious keyword in link domain",
+                                        evidence: `Link '${hostname}' contains '${keyword}'`,
+                                        points: 15
+                                    });
+                                    riskScore += 15;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // C2: URL Shorteners (TODO)
+
+                        // C3: IP Address Links (TODO)
+
+                        // C4: Non-HTTPS Links (TODO)
+
+                    } catch (e) {
+                        // Invalid URL
+                    }
+                });
+
+                // C5: Excessive Links (TODO)
+
+                // Calculate Risk Level (Removed for now as per user request)
+                // console.log(`Risk Level: ${riskLevel} (${riskScore}/100)`);
+
+                console.log("Current Risk Score:", riskScore);
+                console.log("Flags:", flags);
+                console.log("--- Risk Analysis Partial End ---");
             };
 
             // Observer to watch for URL changes
