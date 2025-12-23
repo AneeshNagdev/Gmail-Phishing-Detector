@@ -203,7 +203,21 @@
                             }
                         }
 
-                        // C2: URL Shorteners (TODO)
+                        // C2: URL Shorteners
+                        // "for url shorteners add +20"
+                        if (!urlShortenerFound) {
+                            // Use the already parsed 'hostname' from line 186
+                            // Check against list or common "short" pattern
+                            if (urlShorteners.includes(hostname)) {
+                                urlShortenerFound = true;
+                                flags.push({
+                                    description: "URL Shortener detected",
+                                    evidence: `Link uses shortener ${hostname}`,
+                                    points: 20
+                                });
+                                riskScore += 20;
+                            }
+                        }
 
                         // C3: IP Address Links (TODO)
 
