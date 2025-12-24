@@ -219,7 +219,21 @@
                             }
                         }
 
-                        // C3: IP Address Links (TODO)
+                        // C3: IP Address Links
+                        // "for IP address links add +30"
+                        if (!ipLinkFound) {
+                            // Regex for IP address (IPv4)
+                            // Basic check: 4 groups of 1-3 digits separated by dots
+                            if (/^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+                                ipLinkFound = true;
+                                flags.push({
+                                    description: "Link uses IP address instead of domain",
+                                    evidence: link,
+                                    points: 30
+                                });
+                                riskScore += 30;
+                            }
+                        }
 
                         // C4: Non-HTTPS Links (TODO)
 
