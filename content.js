@@ -235,14 +235,35 @@
                             }
                         }
 
-                        // C4: Non-HTTPS Links (TODO)
+                        // C4: Non-HTTPS Links
+                        // "for non-https add +10"
+                        if (!nonHttpsFound) {
+                            if (url.protocol === 'http:') {
+                                nonHttpsFound = true;
+                                flags.push({
+                                    description: "Insecure (non-HTTPS) link detected",
+                                    evidence: link,
+                                    points: 10
+                                });
+                                riskScore += 10;
+                            }
+                        }
 
                     } catch (e) {
                         // Invalid URL
                     }
                 });
 
-                // C5: Excessive Links (TODO)
+                // C5: Excessive Links
+                // "too many links add +5"
+                if (links.length > 5) {
+                    flags.push({
+                        description: "High number of links detected",
+                        evidence: `Found ${links.length} links`,
+                        points: 5
+                    });
+                    riskScore += 5;
+                }
 
                 // Calculate Risk Level (Removed for now as per user request)
                 // console.log(`Risk Level: ${riskLevel} (${riskScore}/100)`);
