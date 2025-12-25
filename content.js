@@ -265,12 +265,26 @@
                     riskScore += 5;
                 }
 
-                // Calculate Risk Level (Removed for now as per user request)
-                // console.log(`Risk Level: ${riskLevel} (${riskScore}/100)`);
+                // Calculate Risk Level
+                let riskLevel = "LOW";
+                if (riskScore >= 60) {
+                    riskLevel = "HIGH";
+                } else if (riskScore >= 25) {
+                    riskLevel = "MEDIUM";
+                }
 
-                console.log("Current Risk Score:", riskScore);
-                console.log("Flags:", flags);
-                console.log("--- Risk Analysis Partial End ---");
+                console.log(`Risk Level: ${riskLevel} (${riskScore}/100)`);
+                if (flags.length > 0) {
+                    console.log("Flags:");
+                    flags.forEach(flag => {
+                        console.log(`- ${flag.description}: ${flag.evidence}`);
+                    });
+                } else {
+                    console.log("Flags: None");
+                }
+
+                console.log("Disclaimer: This is a heuristic check, not 100% accurate. If you trust the sender, verify using official channels.");
+                console.log("--- Risk Analysis Complete ---");
             };
 
             // Observer to watch for URL changes
