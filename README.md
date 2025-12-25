@@ -24,11 +24,18 @@ This project is a Chrome extension designed to analyze Gmail emails for potentia
     - **Reply-To Domain:** Detects and extracts visible "Reply-to" domains.
     - **Link Discovery:** Extracts visible links from the email body for later analysis.
 
+- **Risk Analysis & Scoring (Module 5):**
+    -   **Heuristic Analysis:** Local scoring system based on extracted metadata.
+    -   **Mismatch Detection:** Flags discrepancies between Sender and Reply-To domains.
+    -   **Sensitive Domain Checks:** Detects spoofing attempts for high-profile domains (e.g., PayPal).
+    -   **Link Analysis:** Identifies suspicious patterns (keywords), URL shorteners, IP addresses, non-HTTPS links, and excessive link counts.
+    -   **Risk Scoring:** Calculates a risk score (0-100) and level (Low/Med/High).
+    -   **User Feedback:** Logs detailed flags and a disclaimer to the console.
+
 ### Next Steps
-- Implement backend data analysis pipeline.
-- Connect the extension to the backend server.
-- Develop the phishing analysis logic.
-- Enhance the UI/UX.
+- **UI Integration (Module 6):** Display the risk report (Score, Level, Flags) in the extension popup.
+- **Backend Integration:** Connect to a backend for more advanced analysis (optional/future).
+- **Refinement:** Tune scoring weights based on testing.
 
 ## Setup
 (Will be added as we progress)
