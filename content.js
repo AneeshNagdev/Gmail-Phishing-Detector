@@ -285,6 +285,15 @@
 
                 console.log("Disclaimer: This is a heuristic check, not 100% accurate. If you trust the sender, verify using official channels.");
                 console.log("--- Risk Analysis Complete ---");
+
+                return {
+                    senderDomain: senderDomain || "Unknown",
+                    replyToDomain: replyToDomain || "N/A",
+                    links: links,
+                    riskScore: riskScore,
+                    riskLevel: riskLevel,
+                    flags: flags
+                };
             };
 
             // Observer to watch for URL changes
@@ -303,6 +312,28 @@
             observer.observe(document.body, {
                 subtree: true,
                 childList: true
+            });
+
+            // 4. Message Handler for Popup
+            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+                if (request.type === "ANALYZE_CURRENT_EMAIL") {
+                    if (isEmailOpen) {
+                        // Re-run extraction to ensure fresh data (in case DOM changed slightly)
+                        const senderDomain = extractSenderDomain();
+                        const replyToDomain = extractReplyToDomain();
+                        const links = extractLinks();
+
+                        const analysisResult = analyzeRisk({
+                            senderDomain,
+                            replyToDomain,
+                            links
+                        });
+
+                        sendResponse({ ok: true, data: analysisResult });
+                    } else {
+                        sendResponse({ ok: false, error: "No email is currently open." });
+                    }
+                }
             });
         } else {
             // Check again in 500ms
