@@ -75,7 +75,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // 4. Disclaimer
-        disclaimer.textContent = "Disclaimer: This is a heuristic check, not 100% accurate. If you trust the sender, verify using official channels.";
+        if (disclaimer) {
+            disclaimer.textContent = "Disclaimer: This is a heuristic check, not 100% accurate. If you trust the sender, verify using official channels.";
+        }
 
         // Show results
         resultsContainer.classList.remove('hidden');
