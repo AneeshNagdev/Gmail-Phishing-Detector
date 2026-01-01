@@ -43,6 +43,9 @@
                         senderDomain,
                         replyToDomain,
                         links
+                    }).then(result => {
+                        // Send to backend (fire and forget / independent of UI)
+                        sendScanResults(result);
                     });
                 } else if (!isEmailView && isEmailOpen) {
                     // Double check: sometimes DOM updates are partial. 
@@ -51,6 +54,39 @@
                     isEmailOpen = false;
                     console.log("Email closed");
                 }
+            };
+
+            // --- Module 7: Backend Integration ---
+            const sendScanResults = (scanResult) => {
+                const sanitizedPayload = {
+                    sender_domain: scanResult.senderDomain,
+                    reply_to_domain: scanResult.replyToDomain === "N/A" ? null : scanResult.replyToDomain,
+                    link_domains: scanResult.links.map(l => {
+                        try { return new URL(l).hostname; } catch (e) { return null; }
+                    }).filter(Boolean), // Send only hostnames for privacy
+                    risk_score: scanResult.riskScore,
+                    risk_level: scanResult.riskLevel,
+                    flags: scanResult.flags
+                };
+
+                fetch('http://localhost:3000/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(sanitizedPayload)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("Scan results sent to backend successfully.");
+                        } else {
+                            console.warn("Backend rejected scan results:", response.status);
+                        }
+                    })
+                    .catch(error => {
+                        // Backend offline or network error - fail gracefully
+                        console.log("Backend unavailable (optional logging skipped).");
+                    });
             };
 
             // --- Module 4: Metadata Extraction ---
@@ -121,7 +157,7 @@
                 return extractedLinks;
             };
 
-            const analyzeRisk = (metadata) => {
+            const analyzeRisk = async (metadata) => {
                 console.log("--- Starting Risk Analysis ---");
                 const { senderDomain, replyToDomain, links } = metadata;
                 let riskScore = 0;
@@ -323,13 +359,15 @@
                         const replyToDomain = extractReplyToDomain();
                         const links = extractLinks();
 
-                        const analysisResult = analyzeRisk({
+                        analyzeRisk({
                             senderDomain,
                             replyToDomain,
                             links
+                        }).then(analysisResult => {
+                            sendScanResults(analysisResult);
+                            sendResponse({ ok: true, data: analysisResult });
                         });
-
-                        sendResponse({ ok: true, data: analysisResult });
+                        return true; // Keep listener open for async response
                     } else {
                         sendResponse({ ok: false, error: "No email is currently open." });
                     }
