@@ -47,6 +47,25 @@ app.post('/scan', (req, res) => {
     });
 });
 
+app.get('/scans', (req, res) => {
+    const query = `
+        SELECT id, sender_domain, risk_score, risk_level, created_at 
+        FROM scans 
+        ORDER BY created_at DESC 
+        LIMIT 50
+    `;
+
+    db.all(query, [], (err, rows) => {
+        if (err) {
+            console.error('Error fetching scans:', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(rows);
+    });
+});
+
+
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
