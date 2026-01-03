@@ -13,6 +13,7 @@
         <h1>Gmail Guard</h1>
         <p id="status">Ready to analyze.</p>
         <button id="analyze-btn">Analyze Email</button>
+        <button id="view-history-btn" style="margin-top: 8px; background-color: #5f6368;">View Scan History</button>
 
         <div id="results-container" class="hidden">
             <div id="risk-badge"></div>
@@ -20,6 +21,16 @@
             <ul id="flags-list"></ul>
             <p id="disclaimer"></p>
         </div>
+
+        <div id="history-container" class="hidden">
+            <h2 style="font-size: 16px; margin: 10px 0;">Scan History</h2>
+            <ul id="history-list" style="list-style: none; padding: 0; width: 100%;"></ul>
+            <p id="history-status" class="hidden"></p>
+        </div>
+
+        <p id="transparency-notice" style="font-size: 10px; color: #9aa0a6; margin-top: 20px; text-align: center;">
+            <strong>Note:</strong> Only derived metadata is stored. Email content is never saved.
+        </p>
     </div>
     <script src="popup.js"></script>
 </body>
