@@ -91,4 +91,81 @@ document.addEventListener('DOMContentLoaded', function () {
         const resultsContainer = document.getElementById('results-container');
         if (resultsContainer) resultsContainer.classList.add('hidden');
     }
+
+    // --- History Feature Logic ---
+    const viewHistoryBtn = document.getElementById('view-history-btn');
+    const historyContainer = document.getElementById('history-container');
+    const historyList = document.getElementById('history-list');
+    const historyStatus = document.getElementById('history-status');
+
+    if (viewHistoryBtn) {
+        viewHistoryBtn.addEventListener('click', function () {
+            // Toggle visibility
+            if (!historyContainer.classList.contains('hidden')) {
+                historyContainer.classList.add('hidden');
+                viewHistoryBtn.textContent = "View Scan History";
+                return;
+            }
+
+            // Show container and fetch data
+            historyContainer.classList.remove('hidden');
+            viewHistoryBtn.textContent = "Hide Scan History";
+            fetchHistory();
+        });
+    }
+
+    function fetchHistory() {
+        historyList.innerHTML = ''; // Clear list
+        historyStatus.textContent = "Loading history...";
+        historyStatus.classList.remove('hidden');
+        historyStatus.style.color = "#666";
+
+        fetch('http://localhost:3000/scans')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Backend unavailable');
+                }
+                return response.json();
+            })
+            .then(data => {
+                historyStatus.classList.add('hidden');
+                renderHistoryList(data);
+            })
+            .catch(err => {
+                console.error("History fetch error:", err);
+                historyStatus.textContent = "No scan history available (backend offline).";
+                historyStatus.style.color = "red";
+                historyStatus.classList.remove('hidden');
+            });
+    }
+
+    function renderHistoryList(scans) {
+        if (!scans || scans.length === 0) {
+            historyStatus.textContent = "No past scans found.";
+            historyStatus.classList.remove('hidden');
+            return;
+        }
+
+        scans.forEach(scan => {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+
+            // Determine risk class
+            let riskClass = 'risk-low';
+            if (scan.risk_level === 'HIGH') riskClass = 'risk-high';
+            else if (scan.risk_level === 'MEDIUM') riskClass = 'risk-medium';
+
+            // Format date
+            const date = new Date(scan.created_at).toLocaleString();
+
+            li.innerHTML = `
+                <div class="history-details">
+                    <span class="history-domain">${scan.sender_domain}</span>
+                    <span class="history-date">${date}</span>
+                </div>
+                <span class="history-risk ${riskClass}">${scan.risk_level}</span>
+            `;
+            historyList.appendChild(li);
+        });
+    }
 });
