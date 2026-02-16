@@ -1,3 +1,5 @@
+![Project Thumbnail](thumbnail.png)
+
 # Gmail Phishing Detector
 
 A powerful Chrome Extension that provides real-time phishing analysis for Gmail users. It inspects email content, links, and sender details to calculate a risk score and alert users of potential threats.
